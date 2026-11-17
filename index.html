@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AsciiPaint (Java OOP) — Infographie &amp; Retour Interactif</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-alt: #f1f5f9;
+    --text: #0f172a;
+    --muted: #475569;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --green: #15803d;
+    --green-soft: #f0fdf4;
+    --amber: #b45309;
+    --amber-soft: #fffbeb;
+    --red: #b91c1c;
+    --red-soft: #fef2f2;
+    --purple: #6d28d9;
+    --purple-soft: #f5f3ff;
+    --radius: 14px;
+    --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 20px 72px;
+  }
+  header.hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #312e81 100%);
+    color: #fff;
+    border-radius: 18px;
+    padding: 32px 36px;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.16);
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 27px; line-height: 1.25; }
+  .hero p { margin: 0; color: #cbd5e1; max-width: 660px; font-size: 14.5px; }
+  .hero-score {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 14px 20px;
+    text-align: center;
+    min-width: 180px;
+  }
+  .hero-score .big { font-size: 32px; font-weight: 800; color: #4ade80; line-height: 1.1; }
+  .hero-score .sub { font-size: 12px; color: #e2e8f0; margin-top: 4px; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .kpi-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; flex-shrink: 0;
+  }
+  .kpi .num { font-size: 22px; font-weight: 800; line-height: 1.15; }
+  .kpi .label { font-size: 12.5px; color: var(--muted); }
+
+  .nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+    background: rgba(248, 250, 252, 0.92);
+    backdrop-filter: blur(8px);
+    padding: 10px 0;
+  }
+  .nav-pills a {
+    text-decoration: none;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .nav-pills a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow);
+  }
+  section.card h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .sec-sub { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-amber { background: var(--amber-soft); color: var(--amber); }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  /* Interactive Timeline / Infographic */
+  .timeline-wrap {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  @media (max-width: 820px) { .timeline-wrap { grid-template-columns: 1fr; } }
+  .remise-nodes { display: grid; gap: 12px; }
+  .remise-node {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--surface);
+    position: relative;
+  }
+  .remise-node:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .remise-node.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+  }
+  .remise-node h3 { margin: 0 0 4px; font-size: 15px; display: flex; justify-content: space-between; }
+  .remise-node p { margin: 0; font-size: 13px; color: var(--muted); }
+  .inspector-box {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .inspector-box h4 { margin: 0 0 8px; color: #60a5fa; font-size: 15px; }
+  .inspector-box ul { margin: 8px 0 0; padding-left: 18px; font-size: 13.5px; color: #cbd5e1; }
+  .inspector-box li { margin-bottom: 6px; }
+
+  /* Diff cards */
+  .diff-pair {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .diff-head {
+    background: var(--surface-alt);
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .diff-cols { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 720px) { .diff-cols { grid-template-columns: 1fr; } }
+  .diff-col { padding: 12px 14px; font-size: 13.5px; }
+  .diff-before { background: var(--red-soft); border-right: 1px solid var(--border); }
+  .diff-after { background: var(--green-soft); }
+  .diff-col .lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; }
+  .diff-before .lbl { color: var(--red); }
+  .diff-after .lbl { color: var(--green); }
+
+  /* Filter & Table */
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .filter-btn {
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface-alt); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  tr.clickable-row { cursor: pointer; transition: background 0.12s ease; }
+  tr.clickable-row:hover { background: var(--accent-soft); }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12.5px;
+    background: var(--surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 10px 0 0;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; }
+  .code-box { position: relative; margin-top: 12px; }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255, 255, 255, 0.14); color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+  }
+  .copy-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+  /* Interactive Playgrounds */
+  .sim-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+  @media (max-width: 760px) { .sim-wrap { grid-template-columns: 1fr; } }
+  .sim-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .sim-panel h4 { margin: 0 0 8px; font-size: 14.5px; }
+  .ascii-canvas {
+    background: #0f172a;
+    color: #38bdf8;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.35;
+    padding: 12px 14px;
+    border-radius: 8px;
+    white-space: pre;
+    margin-top: 10px;
+  }
+  .sim-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .sim-btn {
+    border: 1px solid var(--border);
+    background: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .sim-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .sim-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Command Stack Visualizer */
+  .stack-viz {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  @media (max-width: 760px) { .stack-viz { grid-template-columns: 1fr; } }
+  .stack-col {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 140px;
+  }
+  .stack-col h5 { margin: 0 0 8px; font-size: 12.5px; text-transform: uppercase; color: var(--muted); }
+  .stack-item {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-family: ui-monospace, monospace;
+  }
+  .stack-item.redo { background: var(--amber-soft); color: var(--amber); border-color: #fde68a; }
+  .stack-item.shape { background: var(--green-soft); color: var(--green); border-color: #bbf7d0; }
+
+  /* Checklist */
+  .progress-bar-bg {
+    width: 100%; height: 10px;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 10px 0 16px;
+  }
+  .progress-bar-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    transition: width 0.25s ease;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .check-item:hover { background: var(--surface-alt); }
+  .check-item.done { background: var(--green-soft); border-color: #bbf7d0; }
+  .check-item input { margin-top: 4px; transform: scale(1.15); cursor: pointer; }
+
+  /* Side Drawer */
+  .drawer-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none; z-index: 50;
+  }
+  .drawer-backdrop.open { display: block; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(460px, 94vw);
+    background: var(--surface);
+    box-shadow: -8px 0 30px rgba(15, 23, 42, 0.2);
+    padding: 26px 24px;
+    overflow-y: auto;
+    z-index: 60;
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-close {
+    float: right;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 32px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div>
+      <div class="hero-badge">Java 21 OOP · Exercice en 3 parties</div>
+      <h1>AsciiPaint en 3 parties — Retour &amp; Infographie</h1>
+      <p>Analyse pédagogique et technique des trois remises (Modèle, Contrôleur, Composite &amp; Command) : architecture, coquilles à corriger, ambiguïtés génératrices de bugs et pistes concrètes prêtes à intégrer.</p>
+    </div>
+    <div class="hero-score">
+      <div class="big">Très solide</div>
+      <div class="sub">Progression MVC + Java 21<br>quelques specs à verrouiller</div>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-icon" style="background: var(--green-soft); color: var(--green);">3</div>
+      <div>
+        <div class="num">Remises</div>
+        <div class="label">Modèle → Contrôleur → Patterns</div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon" style="background: var(--red-soft); color: var(--red);">4</div>
+      <div>
+        <div class="num">Coquilles</div>
+        <div class="label">Dont inversion GoF &amp; mot-clé <code>do</code></div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon" style="background: var(--amber-soft); color: var(--amber);">6</div>
+      <div>
+        <div class="num">Zones grises</div>
+        <div class="label">Cliquer une ligne pour les détails</div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-icon" style="background: var(--purple-soft); color: var(--purple);">5</div>
+      <div>
+        <div class="num">Améliorations</div>
+        <div class="label">Avec checklist &amp; tests JUnit 5</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-pills">
+    <a href="#sec-arch">1. Architecture en 3 temps</a>
+    <a href="#sec-typos">2. Coquilles (Avant/Après)</a>
+    <a href="#sec-ambiguities">3. Zones grises</a>
+    <a href="#sec-playgrounds">4. Simulateurs interactifs</a>
+    <a href="#sec-improvements">5. Suggested Improvements</a>
+    <a href="#sec-code">6. Extraits prêts à copier</a>
+  </nav>
+
+  <!-- SECTION 1: INTERACTIVE ARCHITECTURE INFOGRAPHIC -->
+  <section id="sec-arch" class="card">
+    <h2>1. Architecture pédagogique en 3 remises <span class="tag tag-green">Cliquer une étape</span></h2>
+    <p class="sec-sub">La séparation des responsabilités est progressive : chaque remise introduit un concept clé sans casser l'acquis précédent.</p>
+
+    <div class="timeline-wrap">
+      <div class="remise-nodes">
+        <div class="remise-node active" onclick="selectRemise('r1', this)">
+          <h3><span>Remise 1 — Le Modèle &amp; <code>serial</code></span> <span class="tag tag-green">Base saine</span></h3>
+          <p><code>Point</code>, <code>Shape</code>, <code>ColoredShape</code>, <code>Drawing</code>, façade <code>AsciiPaint</code>, DTOs Java 21 (<code>sealed interface</code> + <code>record</code>).</p>
+        </div>
+        <div class="remise-node" onclick="selectRemise('r2', this)">
+          <h3><span>Remise 2 — Contrôleur &amp; Regex</span> <span class="tag tag-blue">MVC complet</span></h3>
+          <p>Boucle applicative <code>start()</code> dans <code>AsciiController</code>, parsing par expressions régulières avec groupes de capture.</p>
+        </div>
+        <div class="remise-node" onclick="selectRemise('r3', this)">
+          <h3><span>Remise 3 — Composite &amp; Command</span> <span class="tag tag-purple">Design Patterns</span></h3>
+          <p><code>Group</code> (Composite) + <code>CommandManager</code> avec deux <code>Deque</code> (<code>undos</code> / <code>redos</code>) et restauration à l'indice exact.</p>
+        </div>
+      </div>
+
+      <div class="inspector-box" id="remise-inspector"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: TYPOS -->
+  <section id="sec-typos" class="card">
+    <h2>2. Petites coquilles dans les PDF <span class="tag tag-red">À corriger</span></h2>
+    <p class="sec-sub">Quatre erreurs factuelles ou typographiques présentes dans les énoncés actuels.</p>
+
+    <div class="diff-pair">
+      <div class="diff-head">
+        <span>Inversion GoF Composite / Component (+ schéma)</span>
+        <span class="tag tag-red">Remise 3 · p. 3</span>
+      </div>
+      <div class="diff-cols">
+        <div class="diff-col diff-before">
+          <span class="lbl">Texte actuel</span>
+          « <code>Shape</code> est le <strong>Composite</strong>, <code>Group</code> est le <strong>Component</strong> et <code>Disc</code> and co sont les <code>Leaf</code>. »
+        </div>
+        <div class="diff-col diff-after">
+          <span class="lbl">Correction</span>
+          « <code>Shape</code> est le <strong>Component</strong>, <code>Group</code> est le <strong>Composite</strong> et <code>Disc</code> and co sont les <code>Leaf</code>. »
+        </div>
+      </div>
+    </div>
+
+    <div class="diff-pair">
+      <div class="diff-head">
+        <span>Mot-clé réservé Java dans <code>CommandManager</code></span>
+        <span class="tag tag-red">Remise 3 · p. 5 (Figure 2)</span>
+      </div>
+      <div class="diff-cols">
+        <div class="diff-col diff-before">
+          <span class="lbl">UML actuel</span>
+          <code>+ do(command: Command)</code> — impossible à compiler en Java (<code>do</code> est un mot-clé réservé).
+        </div>
+        <div class="diff-col diff-after">
+          <span class="lbl">Correction</span>
+          <code>+ doCommand(command: Command)</code> ou <code>+ execute(command: Command)</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="diff-pair">
+      <div class="diff-head">
+        <span>Artefact LaTeX &amp; virgule en trop dans l'UML</span>
+        <span class="tag tag-amber">Remise 1 (p. 4) &amp; Remise 2 (p. 2)</span>
+      </div>
+      <div class="diff-cols">
+        <div class="diff-col diff-before">
+          <span class="lbl">Texte actuel</span>
+          Remise 1 : <code>+ getColorAt(x, y,: int): char</code><br>
+          Remise 2 : <code>/r♀a add disc 5 3 1 c</code>
+        </div>
+        <div class="diff-col diff-after">
+          <span class="lbl">Correction</span>
+          Remise 1 : <code>+ getColorAt(x: int, y: int): char</code><br>
+          Remise 2 : <code>add disc 5 3 1 c</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: AMBIGUITIES -->
+  <section id="sec-ambiguities" class="card">
+    <h2>3. Carte des zones grises <span class="tag tag-amber">Cliquer une ligne pour inspecter</span></h2>
+    <p class="sec-sub">Chaque ambiguïté de spécification se traduit directement par des divergences d'implémentation chez les étudiants.</p>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterRows('all', this)">Tout voir (6)</button>
+      <button class="filter-btn" onclick="filterRows('r1', this)">Remise 1</button>
+      <button class="filter-btn" onclick="filterRows('r2', this)">Remise 2</button>
+      <button class="filter-btn" onclick="filterRows('r3', this)">Remise 3</button>
+    </div>
+
+    <table id="amb-table">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Sujet</th>
+          <th style="width: 28%;">Ce que dit l'énoncé</th>
+          <th style="width: 27%;">Ce qui casse en pratique</th>
+          <th style="width: 25%;">Décision recommandée</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="clickable-row" data-remise="r1" onclick="openDrawer(0)">
+          <td><strong>Z-order (chevauchement)</strong><br><span class="tag tag-blue">Remise 1</span></td>
+          <td>« vérifier si une forme occupe ce point » (p. 5), sans ordre.</td>
+          <td><code>getShapeAt(Point)</code> et <code>getColorAt</code> divergent selon le sens de parcours.</td>
+          <td>Dernière forme ajoutée au-dessus (parcours inversé).</td>
+        </tr>
+        <tr class="clickable-row" data-remise="r1" onclick="openDrawer(1)">
+          <td><strong>Dimensions &amp; bornes</strong><br><span class="tag tag-blue">Remise 1</span></td>
+          <td>Pas de contrainte sur <code>radius</code>, <code>width</code>, <code>height</code> ni sur les bords.</td>
+          <td>Rayon <code>&lt;= 0</code> accepté ; rectangle de largeur 5 couvre 5 ou 6 cases selon <code>&lt;</code> vs <code>&lt;=</code>.</td>
+          <td>Exiger dimensions <code>&gt; 0</code> et fixer la convention des bords.</td>
+        </tr>
+        <tr class="clickable-row" data-remise="r2" onclick="openDrawer(2)">
+          <td><strong>Parsing &amp; erreurs CLI</strong><br><span class="tag tag-blue">Remise 2</span></td>
+          <td>Commandes sur 1 ligne via regex, sans format d'erreur.</td>
+          <td>Une entrée invalide fait planter <code>start()</code> au lieu d'afficher une erreur et boucler.</td>
+          <td>Préciser : commande invalide = message d'erreur sans quitter.</td>
+        </tr>
+        <tr class="clickable-row" data-remise="r3" onclick="openDrawer(3)">
+          <td><strong>Couleur d'un <code>Group</code></strong><br><span class="tag tag-purple">Remise 3</span></td>
+          <td>Note 1 : couleur peut être celle de la 1re forme.</td>
+          <td><code>color 0 X</code> suivi de <code>ungroup 0</code> : les enfants gardent <code>X</code> ou retrouvent leur couleur ?</td>
+          <td>Trancher explicitement (masquage vs propagation).</td>
+        </tr>
+        <tr class="clickable-row" data-remise="r3" onclick="openDrawer(4)">
+          <td><strong><code>Group</code> + <code>serial</code></strong><br><span class="tag tag-purple">Remise 3</span></td>
+          <td><code>GeometricalShape</code> est <code>sealed</code> (Disc, Rectangle, Square).</td>
+          <td><code>listShapes()</code> plante ou ignore les groupes en Remise 3.</td>
+          <td>Ajouter <code>GroupShape</code> à <code>serial</code> ou documenter le mapping.</td>
+        </tr>
+        <tr class="clickable-row" data-remise="r3" onclick="openDrawer(5)">
+          <td><strong><code>undo</code>/<code>redo</code> vs indices</strong><br><span class="tag tag-purple">Remise 3</span></td>
+          <td><code>group</code>/<code>ungroup</code> en bonus ; commandes par <code>index</code>.</td>
+          <td>Un <code>group</code> non-annulable décale les indices et corrompt les <code>undo</code> précédents.</td>
+          <td>Passer <code>Shape</code> aux commandes Move/Color, ou <code>group</code> obligatoire.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 4: INTERACTIVE PLAYGROUNDS -->
+  <section id="sec-playgrounds" class="card">
+    <h2>4. Simulateurs interactifs <span class="tag tag-purple">Démonstration en direct</span></h2>
+    <p class="sec-sub">Trois mini-simulateurs pour visualiser immédiatement les effets des ambiguïtés sur le rendu et les piles <code>Deque</code>.</p>
+
+    <div class="sim-wrap">
+      <div class="sim-panel">
+        <h4>A. Z-order : <code>disc</code> ('c') puis <code>rectangle</code> ('r')</h4>
+        <div class="sim-controls">
+          <button class="sim-btn active" onclick="setZOrder('last', this)">Dernière forme au-dessus</button>
+          <button class="sim-btn" onclick="setZOrder('first', this)">Première forme au-dessus</button>
+        </div>
+        <div id="z-desc" style="font-size: 12.5px; color: var(--muted);"></div>
+        <div id="z-canvas" class="ascii-canvas"></div>
+      </div>
+
+      <div class="sim-panel">
+        <h4>B. <code>Group</code> : effet de <code>color 0 X</code> puis <code>ungroup 0</code></h4>
+        <div class="sim-controls">
+          <button class="sim-btn active" onclick="setGroupColor('mask', this)">Masquage (enfants intacts)</button>
+          <button class="sim-btn" onclick="setGroupColor('propagate', this)">Propagation aux enfants</button>
+        </div>
+        <div id="g-desc" style="font-size: 12.5px; color: var(--muted);"></div>
+        <div id="g-canvas" class="ascii-canvas"></div>
+      </div>
+    </div>
+
+    <div class="sim-panel" style="margin-top: 16px;">
+      <h4>C. Simulateur <code>CommandManager</code> (<code>Deque&lt;Command&gt; undos</code> &amp; <code>redos</code>)</h4>
+      <div class="sim-controls">
+        <button class="sim-btn" onclick="cmdDo('Add(Disc c)')">+ doCommand(Add Disc)</button>
+        <button class="sim-btn" onclick="cmdDo('Add(Square s)')">+ doCommand(Add Square)</button>
+        <button class="sim-btn" onclick="cmdDo('Move(0, +2, 0)')">+ doCommand(Move)</button>
+        <button class="sim-btn" onclick="cmdUndo()">↩ undo()</button>
+        <button class="sim-btn" onclick="cmdRedo()">↪ redo()</button>
+        <button class="sim-btn" onclick="cmdReset()">↺ Reset</button>
+      </div>
+      <div id="cmd-status" style="font-size: 12.5px; color: var(--muted);">Exécutez des commandes puis testez <code>undo()</code> et une nouvelle commande pour observer le vidage de <code>redos</code>.</div>
+      <div class="stack-viz">
+        <div class="stack-col">
+          <h5>Dessin (<code>shapes</code>)</h5>
+          <div id="viz-shapes"></div>
+        </div>
+        <div class="stack-col">
+          <h5>Pile <code>undos</code> (ArrayDeque)</h5>
+          <div id="viz-undos"></div>
+        </div>
+        <div class="stack-col">
+          <h5>Pile <code>redos</code> (ArrayDeque)</h5>
+          <div id="viz-redos"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: SUGGESTED IMPROVEMENTS CHECKLIST -->
+  <section id="sec-improvements" class="card">
+    <h2>5. Suggested Improvements <span class="tag tag-purple">Checklist interactive</span></h2>
+    <p class="sec-sub">Cochez les points à retenir pour la prochaine version de l'énoncé (<span id="prog-text">0 / 8 sélectionnés</span>).</p>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill"></div></div>
+
+    <div id="checklist">
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 3, p. 3]</strong> Corriger l'inversion : <code>Shape</code> = <code>Component</code>, <code>Group</code> = <code>Composite</code>.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 3, p. 5]</strong> Renommer <code>+ do(command)</code> en <code>+ doCommand(command)</code> (éviter le mot-clé Java <code>do</code>).</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 1 &amp; 2]</strong> Nettoyer <code>getColorAt(x, y,: int)</code> et l'artefact LaTeX <code>/r♀a</code>.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 1]</strong> Ajouter un encadré 5 lignes : Z-order (dernière forme au-dessus), dimensions <code>&gt; 0</code>, bornes de <code>contains</code>.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 2]</strong> Préciser le comportement sur commande invalide (message d'erreur sans quitter <code>start()</code>).</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 3]</strong> Trancher la sémantique couleur de <code>Group</code> + doublons/imbrication dans <code>group</code>.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 3]</strong> Documenter comment <code>serial</code> (<code>GeometricalShape</code>) / <code>listShapes()</code> gère un <code>Group</code>.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updateProg()"><span><strong>[Remise 3]</strong> Ajouter 3–4 tests JUnit 5 de scénarios croisés (<code>delete</code>+<code>undo</code>, vidage <code>redos</code>, <code>group</code>+<code>move</code>+<code>ungroup</code>).</span></label>
+    </div>
+  </section>
+
+  <!-- SECTION 6: COPYABLE SNIPPETS -->
+  <section id="sec-code" class="card">
+    <h2>6. Extraits prêts à copier-coller <span class="tag tag-blue">LaTeX / JUnit 5</span></h2>
+    <p class="sec-sub">Ressources prêtes à insérer dans l'énoncé et dans le dépôt de tests.</p>
+
+    <h3 style="margin: 10px 0 6px; font-size: 15px;">Encadré « Cas limites &amp; invariants attendus »</h3>
+    <div class="code-box">
+      <button class="copy-btn" onclick="copyCode('spec-snippet', this)">Copier</button>
+      <pre id="spec-snippet"><code>Cas limites &amp; invariants attendus :
+- Dimensions : radius &gt; 0, width &gt; 0, height &gt; 0 (sinon IllegalArgumentException).
+- Chevauchement : en cas de superposition, la dernière forme ajoutée est affichée au-dessus.
+- Groupes : group rejette les indices hors bornes ou dupliqués (ex: group 1 1).
+- Undo / Redo : toute nouvelle commande exécutée via doCommand vide la pile redos ;
+  undo() et redo() sur pile vide sont sans effet (pas d'exception).</code></pre>
+    </div>
+
+    <h3 style="margin: 22px 0 6px; font-size: 15px;">Suite JUnit 5 « Scénarios croisés » (Remise 3)</h3>
+    <div class="code-box">
+      <button class="copy-btn" onclick="copyCode('junit-snippet', this)">Copier</button>
+      <pre id="junit-snippet"><code>@Test
+void deleteThenUndoRestoresAtExactIndex() {
+    AsciiPaint paint = new AsciiPaint();
+    paint.addShape(new DiscShape(2, 2, 1, 'a'));
+    paint.addShape(new DiscShape(5, 5, 1, 'b'));
+    paint.removeShape(0);
+    paint.undo();
+    assertEquals('a', paint.getColorAt(2, 2));
+    assertEquals(2, paint.listShapes().size());
+}
+
+@Test
+void newCommandClearsRedoStack() {
+    AsciiPaint paint = new AsciiPaint();
+    paint.addShape(new DiscShape(2, 2, 1, 'a'));
+    paint.undo();
+    paint.addShape(new SquareShape(4, 4, 2, 's'));
+    paint.redo(); // ne doit pas ré-ajouter 'a'
+    assertEquals(' ', paint.getColorAt(2, 2));
+}
+
+@Test
+void groupMoveUngroupPreservesTranslation() {
+    AsciiPaint paint = new AsciiPaint();
+    paint.addShape(new DiscShape(2, 2, 1, 'c'));
+    paint.addShape(new SquareShape(10, 10, 2, 's'));
+    paint.group(0, 1);
+    paint.moveShape(0, 3, 0);
+    paint.ungroup(0);
+    assertEquals('c', paint.getColorAt(5, 2));
+    assertEquals('s', paint.getColorAt(13, 10));
+}</code></pre>
+    </div>
+  </section>
+
+  <footer>
+    Document autonome hors ligne · Retour sur les énoncés AsciiPaint 1, 2 et 3 (Java 21 · MVC, Composite &amp; Command)
+  </footer>
+</div>
+
+<!-- SIDE DRAWER -->
+<div class="drawer-backdrop" id="drawer-bg" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">Fermer ✕</button>
+  <div id="drawer-content"></div>
+</div>
+
+<script>
+  const remiseData = {
+    r1: {
+      title: 'Remise 1 — Modèle & Sérialisation',
+      points: [
+        'Approche red-to-green : tests unitaires fournis en échec au départ.',
+        'Séparation nette entre Shape (domaine) et GeometricalShape (DTO sealed + records Java 21).',
+        'Point d\'attention : Square extends Rectangle pose le classique dilemme LSP si Rectangle est mutable.',
+        'Point d\'attention : Z-order et dimensions <= 0 non spécifiés.'
+      ]
+    },
+    r2: {
+      title: 'Remise 2 — Contrôleur & Regex',
+      points: [
+        'Frontière MVC respectée : AsciiController orchestre start() et délègue à AsciiPaint.',
+        'Apprentissage ciblé des regex avec groupes de capture nommés ou indexés.',
+        'Point d\'attention : comportement sur erreur de syntaxe ou indices invalides non spécifié.'
+      ]
+    },
+    r3: {
+      title: 'Remise 3 — Composite & Command',
+      points: [
+        'Recommandation explicite de Deque (ArrayDeque) au lieu de Stack.',
+        'Rappel clé : DeleteCommand doit restaurer la forme à son indice exact.',
+        'Points d\'attention : inversion Component/Composite dans le texte, do() réservé en Java, couleur de Group, et interaction Group + serial.'
+      ]
+    }
+  };
+
+  function selectRemise(key, el) {
+    document.querySelectorAll('.remise-node').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    const d = remiseData[key];
+    document.getElementById('remise-inspector').innerHTML =
+      `<div><h4>${d.title}</h4><ul>${d.points.map(p => `<li>${p}</li>`).join('')}</ul></div>` +
+      `<div style="font-size:12px;color:#94a3b8;margin-top:14px;">Astuce : cliquer sur les autres remises pour comparer la progression.</div>`;
+  }
+
+  const drawerDetails = [
+    {
+      title: 'Z-order (superposition de formes)',
+      ref: 'Remise 1 · Section 3.2 (p. 5)',
+      why: 'Deux étudiants qui réussissent tous les tests unitaires sur formes disjointes peuvent produire des dessins différents dès que deux formes se chevauchent.',
+      fix: 'Ajouter une phrase : « Si plusieurs formes contiennent le point (x, y), la dernière forme ajoutée au dessin est affichée (parcours inversé dans getShapeAt / getColorAt). »'
+    },
+    {
+      title: 'Dimensions <= 0 & bornes de contains()',
+      ref: 'Remise 1 · Section 2 & Figure 1 (p. 3–4)',
+      why: 'Un rayon ou côté négatif crée des formes fantômes ; une borne inclusive vs exclusive change la largeur affichée d\'un rectangle d\'une colonne.',
+      fix: 'Valider radius > 0, width > 0, height > 0 dans les constructeurs (IllegalArgumentException) et préciser la convention [x, x + width[ ou [x, x + width].'
+    },
+    {
+      title: 'Gestion des erreurs dans AsciiController',
+      ref: 'Remise 2 · Section 2.1 (p. 3)',
+      why: 'Sans consigne explicite, un student sur deux laisse NumberFormatException ou IndexOutOfBoundsException tuer la boucle start().',
+      fix: 'Indiquer qu\'une commande invalide affiche un message d\'erreur lisible et redemande la commande suivante.'
+    },
+    {
+      title: 'Couleur d\'un Group & ungroup',
+      ref: 'Remise 3 · Note 1 (p. 2) & Section 2.1 (p. 3)',
+      why: 'L\'énoncé laisse la couleur du groupe ouverte, ce qui rend ambiguë l\'interaction entre color <idx> <char> et ungroup <idx>.',
+      fix: 'Choisir une règle simple : soit Group.setColor propage aux enfants (simple), soit la couleur du groupe masque les enfants tant qu\'il est groupé.'
+    },
+    {
+      title: 'Group face à serial (GeometricalShape)',
+      ref: 'Remise 1 (p. 4) vs Remise 3 (p. 3)',
+      why: 'GeometricalShape est une sealed interface qui n\'autorise que DiscShape, RectangleShape et SquareShape. listShapes() ne sait pas quoi faire d\'un Group.',
+      fix: 'Ajouter GroupShape dans serial ou préciser comment listShapes() représente un groupe.'
+    },
+    {
+      title: 'Indices fragiles dans Command',
+      ref: 'Remise 3 · Section 1 (p. 2) & Figure 2 (p. 5)',
+      why: 'Si group/ungroup n\'est pas annulable, la liste shapes change de taille/indices alors que d\'anciennes commandes (Move, Delete) gardent les anciens indices.',
+      fix: 'Passer la référence Shape aux commandes Move/Color, ou rendre group/ungroup obligatoires dans l\'historique.'
+    }
+  ];
+
+  function openDrawer(idx) {
+    const d = drawerDetails[idx];
+    document.getElementById('drawer-content').innerHTML = `
+      <span class="tag tag-amber">${d.ref}</span>
+      <h2 style="margin:10px 0 12px;font-size:20px;">${d.title}</h2>
+      <h4 style="margin:14px 0 4px;">Pourquoi c'est important</h4>
+      <p style="margin:0;color:var(--muted);font-size:14px;">${d.why}</p>
+      <h4 style="margin:16px 0 4px;">Correction suggérée</h4>
+      <div style="background:var(--green-soft);border-left:4px solid var(--green);padding:12px;border-radius:8px;font-size:14px;">${d.fix}</div>
+    `;
+    document.getElementById('drawer-bg').classList.add('open');
+    document.getElementById('drawer').classList.add('open');
+  }
+  function closeDrawer() {
+    document.getElementById('drawer-bg').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+  }
+
+  function filterRows(remise, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#amb-table tbody tr').forEach(row => {
+      row.style.display = (remise === 'all' || row.dataset.remise === remise) ? '' : 'none';
+    });
+  }
+
+  function copyCode(id, btn) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.innerText;
+      btn.innerText = 'Copié !';
+      setTimeout(() => btn.innerText = old, 1500);
+    });
+  }
+
+  function setZOrder(mode, btn) {
+    btn.parentElement.querySelectorAll('.sim-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const canvas = document.getElementById('z-canvas');
+    const desc = document.getElementById('z-desc');
+    if (mode === 'last') {
+      desc.textContent = "Convention standard : le rectangle 'r' (ajouté après) recouvre le disque 'c'.";
+      canvas.textContent = "  ccc          \n ccccc         \n ccrrrrrr      \n ccrrrrrr      \n  crrrrrr      ";
+    } else {
+      desc.textContent = "Premier trouvé dans la liste : le disque 'c' reste devant 'r' (contre-intuitif).";
+      canvas.textContent = "  ccc          \n ccccc         \n cccccrrr      \n cccccrrr      \n  cccrrrr      ";
+    }
+  }
+
+  function setGroupColor(mode, btn) {
+    btn.parentElement.querySelectorAll('.sim-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const canvas = document.getElementById('g-canvas');
+    const desc = document.getElementById('g-desc');
+    if (mode === 'mask') {
+      desc.innerHTML = "En groupe, tout s'affiche en <code>'X'</code>. Après <code>ungroup</code>, chaque forme retrouve sa couleur.";
+      canvas.textContent = "Avant ungroup :  XXX   XXXX\n                 XXX   XXXX\nAprès ungroup :  ccc   rrrr\n                 ccc   rrrr";
+    } else {
+      desc.innerHTML = "<code>setColor('X')</code> modifie aussi les enfants : après <code>ungroup</code>, elles restent <code>'X'</code>.";
+      canvas.textContent = "Avant ungroup :  XXX   XXXX\n                 XXX   XXXX\nAprès ungroup :  XXX   XXXX\n                 XXX   XXXX";
+    }
+  }
+
+  // CommandManager interactive state
+  let shapes = [], undos = [], redos = [];
+  function renderStacks(msg) {
+    document.getElementById('cmd-status').innerHTML = msg;
+    document.getElementById('viz-shapes').innerHTML = shapes.length ? shapes.map((s,i)=>`<div class="stack-item shape">[${i}] ${s}</div>`).join('') : '<span style="color:#94a3b8;font-size:12px;">(vide)</span>';
+    document.getElementById('viz-undos').innerHTML = undos.length ? [...undos].reverse().map(u=>`<div class="stack-item">${u}</div>`).join('') : '<span style="color:#94a3b8;font-size:12px;">(vide)</span>';
+    document.getElementById('viz-redos').innerHTML = redos.length ? [...redos].reverse().map(r=>`<div class="stack-item redo">${r}</div>`).join('') : '<span style="color:#94a3b8;font-size:12px;">(vide)</span>';
+  }
+  function cmdDo(name) {
+    if (name.startsWith('Add(')) shapes.push(name.slice(4, -1));
+    else if (shapes.length) shapes[0] = shapes[0].replace(/\)$/, '') + ' +dx)';
+    undos.push(name);
+    const cleared = redos.length > 0;
+    redos = [];
+    renderStacks(cleared ? `<code>doCommand(${name})</code> exécuté — <strong>pile <code>redos</code> vidée !</strong>` : `<code>doCommand(${name})</code> empilé dans <code>undos</code>.`);
+  }
+  function cmdUndo() {
+    if (!undos.length) { renderStacks('<code>undo()</code> sur pile vide : no-op silencieux.'); return; }
+    const c = undos.pop();
+    redos.push(c);
+    if (c.startsWith('Add(')) shapes.pop();
+    else if (shapes.length) shapes[0] = shapes[0].replace(' +dx)', '');
+    renderStacks(`<code>undo()</code> : <code>${c}</code> déplacé vers <code>redos</code>.`);
+  }
+  function cmdRedo() {
+    if (!redos.length) { renderStacks('<code>redo()</code> sur pile vide : no-op silencieux.'); return; }
+    const c = redos.pop();
+    undos.push(c);
+    if (c.startsWith('Add(')) shapes.push(c.slice(4, -1));
+    else if (shapes.length) shapes[0] = shapes[0] + ' +dx)';
+    renderStacks(`<code>redo()</code> : <code>${c}</code> ré-exécuté et remis dans <code>undos</code>.`);
+  }
+  function cmdReset() { shapes = []; undos = []; redos = []; renderStacks('Piles réinitialisées.'); }
+
+  function updateProg() {
+    const items = document.querySelectorAll('#checklist input[type="checkbox"]');
+    let done = 0;
+    items.forEach(cb => {
+      cb.closest('.check-item').classList.toggle('done', cb.checked);
+      if (cb.checked) done++;
+    });
+    document.getElementById('prog-text').textContent = `${done} / ${items.length} sélectionnés`;
+    document.getElementById('prog-fill').style.width = `${(done / items.length) * 100}%`;
+  }
+
+  selectRemise('r1', document.querySelector('.remise-node'));
+  setZOrder('last', document.querySelector('#sec-playgrounds .sim-btn'));
+  setGroupColor('mask', document.querySelectorAll('#sec-playgrounds .sim-panel')[1].querySelector('.sim-btn'));
+  cmdReset();
+</script>
+</body>
+</html>
